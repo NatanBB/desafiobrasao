@@ -17,4 +17,7 @@ export class Filling {
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @Column({ default: false })
+  isRequired!: boolean;
 }
