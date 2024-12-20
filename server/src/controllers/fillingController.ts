@@ -2,6 +2,19 @@ import { Request, Response } from "express";
 import { createFillingService, getFillingsService } from "../services/fillingService";
 import { fillingSchema } from "../schemas/fillingSchema";
 
+export const getFillings = async (req: Request, res: Response) => {
+  try {
+    const fillings = await getFillingsService();
+    res.status(200).json(fillings);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "An unexpected error occurred." });
+    }
+  }
+};
+
 export const createFilling = async (req: Request, res: Response) => {
   try {
     const validatedData = fillingSchema.parse(req.body);
@@ -15,19 +28,6 @@ export const createFilling = async (req: Request, res: Response) => {
         res.status(400).json({ errors: (error as any).issues });
         return;
       }
-      res.status(500).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: "An unexpected error occurred." });
-    }
-  }
-};
-
-export const getFillings = async (req: Request, res: Response) => {
-  try {
-    const fillings = await getFillingsService();
-    res.status(200).json(fillings);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
       res.status(500).json({ error: error.message });
     } else {
       res.status(500).json({ error: "An unexpected error occurred." });
