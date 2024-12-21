@@ -1,6 +1,6 @@
 # <img src="./web/public/favicon.png" height=25 alt="logo brasao sistemas"> Dynamic Fields Project | Brasão Challenge
 
-### :blue_heart: This project is a simple application of dynamic fields, developed with Node and Express and React with Typescript
+### :blue_heart: This project is a simple application of dynamic fields, developed with Node, React and Typescript
 ![alt text](https://i.imgur.com/ZqkHjAo.png)
 
 ## Features
