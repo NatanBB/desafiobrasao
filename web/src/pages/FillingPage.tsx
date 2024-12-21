@@ -10,6 +10,7 @@ import InputNumber from "../components/InputNumber";
 import Checkbox from "../components/Checkbox";
 import InputDate from "../components/InputDate";
 import { formatFieldValue } from "../utils/functions";
+import { newFillingSchema } from "../validations/newFillingSchema";
 
 export default function FillingPage() {
   const [listData, setListData] = useState<FillingModel[]>([]);
@@ -22,6 +23,7 @@ export default function FillingPage() {
     isRequired: false
   });
 
+  //#region Handle API Functions
   const handleGetData = async () => {
     try {
       const response = (await api.get(`/preenchimentos`))?.data;
@@ -32,8 +34,8 @@ export default function FillingPage() {
           convertedField: fields.find(f => f.value == item.fieldId)?.label ?? ""
         }));
         setListData(updatedData);
-        setLoading(false);
       }
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error("Error fetching fillings:", error);
@@ -50,12 +52,48 @@ export default function FillingPage() {
           datatype: field.datatype,
         }));
         setFields(formattedFields);
+        setFormData((prevState) => ({
+          ...prevState,
+          fieldId: formattedFields[0]?.value ?? ""
+        }))
       }
     } catch (error) {
       console.error("Error fetching fields:", error);
     }
   };
 
+  const handleSubmit = async () => {
+    const result = newFillingSchema.safeParse(formData);
+    if (!result.success) {
+      alert("Erros no formulário:");
+      result.error.errors.forEach((error) => {
+        console.error(error.message);
+        alert(error.message);
+      });
+      return;
+    }
+
+    try {
+      const { fieldId, value, isRequired } = formData;
+      const data = {
+        fieldId,
+        value,
+        isRequired
+      };
+      const response = await api.post("/preenchimentos", data);
+      if (response.status === 201) {
+        alert("Preenchimento adicionado com sucesso!");
+        setFormData({ fieldId: fields[0]?.value ?? "", fieldType: "string", value: "", isRequired: false });
+        handleGetData();
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar preenchimento:", error);
+      alert("Erro ao adicionar preenchimento");
+    }
+  };
+  //#endregion
+
+  //#region Handle Functions
   const handleFieldChange = (fieldId: string) => {
     const selectedField = fields.find((field) => field.value === fieldId);
     if (selectedField) {
@@ -92,26 +130,7 @@ export default function FillingPage() {
       };
     });
   };
-
-  const handleSubmit = async () => {
-    try {
-      const { fieldId, value, isRequired } = formData;
-      const data = {
-        fieldId,
-        value,
-        isRequired
-      };
-      const response = await api.post("/preenchimentos", data);
-      if (response.status === 201) {
-        alert("Preenchimento adicionado com sucesso!");
-        setFormData({ fieldId: "", fieldType: "string", value: "", isRequired: false });
-        handleGetData();
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar preenchimento:", error);
-      alert("Erro ao adicionar preenchimento");
-    }
-  };
+  //#endregion
 
   useEffect(() => {
     loadFields();

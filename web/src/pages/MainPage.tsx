@@ -10,6 +10,7 @@ import Checkbox from "../components/Checkbox";
 import { useEffect, useState } from "react";
 import { FieldModel } from "../types/fieldTypes";
 import api from "../services/api";
+import { newFieldSchema } from "../validations/newFieldSchema";
 
 export default function MainPage() {
   const [listData, setListData] = useState<FieldModel[]>([]);
@@ -21,6 +22,7 @@ export default function MainPage() {
   });
   const listSelectOptions: SelectOptionsModel[] = SELECTOPTIONS.options();
 
+  //#region Handle API Functions
   const handleGetData = async () => {
     try {
       const response = (await api.get(`/campos`))?.data;
@@ -31,8 +33,8 @@ export default function MainPage() {
           createdAt: new Date(item.createdAt).toLocaleString(),
         }));
         setListData(updatedData);
-        setLoading(false);
       }
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error('Error fetching tasks:', error);
@@ -40,6 +42,17 @@ export default function MainPage() {
   };
 
   const handleSubmit = async () => {
+    const result = newFieldSchema.safeParse(formData);
+
+    if (!result.success) {
+      alert("Erros no formulário:");
+      result.error.errors.forEach((error) => {
+        console.error(error.message);
+        alert(error.message);
+      });
+      return;
+    }
+
     try {
       const response = await api.post('/campos', formData);
       if (response.status === 201) {
@@ -51,12 +64,17 @@ export default function MainPage() {
         });
         handleGetData();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar campo:', error);
+      if (error?.response?.data?.error?.includes("Field with this name already exists")) {
+        return alert('Já existe um campo com esse nome!');
+      }
       alert('Erro ao criar campo');
     }
   };
+  //#endregion
 
+  //#region Handle Functions
   const handleInputChange = (e: React.ChangeEvent<any>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
@@ -64,6 +82,7 @@ export default function MainPage() {
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
+  //#endregion
 
   useEffect(() => {
     handleGetData();

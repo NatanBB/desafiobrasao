@@ -1,11 +1,10 @@
-
 /**
  * Validates if name is fill
  * @param newName Field Name
  * @returns True / False
  */
 export const validateInsert = (
-  newName: string,
+  newName: string | undefined | null, // undefind && null to test
 ): boolean => {
   if (
     (newName == null || newName == "")
