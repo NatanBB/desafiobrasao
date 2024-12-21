@@ -62,6 +62,15 @@ The database will be created automatically after running the server.
 
 ## Usage
 
+Access web application in: <br>
+http://localhost:3000/
+
+The server running in: <br>
+http://localhost:4001/
+
+See the server documentation in: <br>
+http://localhost:4001/documentacao/
+
 ### Create Fields:
 - Type the field name.
 - Select field type.
